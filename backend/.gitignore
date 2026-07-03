@@ -9,6 +9,7 @@ __pycache__/
 .pytype/
 .mypy_cache/
 
+
 # Virtual environments
 venv/
 env/

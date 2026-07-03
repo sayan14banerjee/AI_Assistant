@@ -2,9 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from app.api.routes.chat import router as chat_router
+from app.api.routes import chat
 from web_search import searchWeb
 
+from app.api.routes import search
 
 app = FastAPI()
 app.add_middleware(
@@ -15,8 +16,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(chat_router)
+app.include_router(
+    chat.router,
+    prefix="/chat",
+    tags=["Chat"]   
+    )
 
+app.include_router(
+    search.router,
+    prefix="/chat/search",
+    tags=["Search"]
+)
 
 class SearchRequest(BaseModel):
     query: str
@@ -25,13 +35,3 @@ class SearchRequest(BaseModel):
 @app.get("/")
 async def root():
     return {"message": "AI Assistant API is running."}
-
-
-@app.post("/search")
-async def web_search(req: SearchRequest):
-    result = searchWeb(req.query)
-
-    return {
-        "results": result,
-    }
-
