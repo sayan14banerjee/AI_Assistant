@@ -8,10 +8,26 @@ class LLMService():
         self.client = grock_client
 
 
-    def generate_response(self, messages: list) -> str:
-        response = self.client.chat.completions.create(
+    def _create_completion(self, messages: list, stream: bool = False):
+        return self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=messages
+            messages=messages,
+            stream=stream
         )
 
+    def generate_response(self, messages: list) -> str:
+        response = self._create_completion(messages)
+
         return response.choices[0].message.content
+
+    def generate_stream(self, messages: list):
+        stream = self._create_completion(
+            messages,
+            stream=True
+        )
+
+        for chunk in stream:
+
+            content = chunk.choices[0].delta.content
+            if content:
+                yield content

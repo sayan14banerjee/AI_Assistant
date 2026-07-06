@@ -6,6 +6,7 @@ from app.api.routes import chat
 from web_search import searchWeb
 
 from app.api.routes import search
+from app.api.routes import stream
 
 app = FastAPI()
 app.add_middleware(
@@ -24,8 +25,14 @@ app.include_router(
 
 app.include_router(
     search.router,
-    prefix="/chat/search",
+    prefix="/chat",
     tags=["Search"]
+)
+
+app.include_router(
+    stream.router,
+    prefix="/chat",
+    tags=["Stream"]
 )
 
 class SearchRequest(BaseModel):
