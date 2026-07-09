@@ -3,14 +3,17 @@
 import Header from "@/components/Header";
 import ChatInput from "@/components/ChatInput";
 import ChatWindow from "@/components/ChatWindow";
+
 import { useChat } from "@/hooks/useChat";
 
 export default function Home() {
 
     const {
+        message,
+        setMessage,
         messages,
         loading,
-        sendMessage
+        sendMessage,
     } = useChat();
 
     return (
@@ -19,16 +22,19 @@ export default function Home() {
 
             <Header />
 
-            <main className="flex-1 overflow-hidden">
+            <main className="flex-1 flex overflow-hidden">
 
                 <ChatWindow
                     messages={messages}
+                    onPromptClick={setMessage}
                 />
 
             </main>
 
             <ChatInput
-                onSend={sendMessage}
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
                 loading={loading}
             />
 

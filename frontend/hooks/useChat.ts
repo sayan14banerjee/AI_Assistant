@@ -4,27 +4,41 @@ import { streamChat } from "@/services/streamService";
 
 export function useChat() {
 
+    // Current text inside the input
+    const [message, setMessage] = useState("");
+
+    // Entire conversation
     const [messages, setMessages] = useState<Message[]>([]);
+
+    // AI generating response
     const [loading, setLoading] = useState(false);
 
-    const sendMessage = async (message: string) => {
+    const sendMessage = async () => {
 
-        if (!message.trim()) return;
+        if (!message.trim() || loading) return;
+
+        // Save prompt before clearing input
+        const prompt = message;
+
+        // Clear input immediately
+        setMessage("");
 
         setLoading(true);
 
         const userMessage: Message = {
             id: crypto.randomUUID(),
             role: "user",
-            content: message,
+            content: prompt,
         };
 
         const assistantMessage: Message = {
             id: crypto.randomUUID(),
             role: "assistant",
             content: "",
+            streaming: true,
         };
 
+        // Add user + empty assistant
         setMessages(prev => [
             ...prev,
             userMessage,
@@ -34,8 +48,7 @@ export function useChat() {
         try {
 
             await streamChat(
-                message,
-
+                prompt,
                 (chunk) => {
 
                     setMessages(prev => {
@@ -49,10 +62,10 @@ export function useChat() {
                         };
 
                         return updated;
+
                     });
 
                 }
-
             );
 
         } catch (error) {
@@ -61,6 +74,19 @@ export function useChat() {
 
         } finally {
 
+            setMessages(prev => {
+
+                const updated = [...prev];
+
+                updated[updated.length - 1] = {
+                    ...updated[updated.length - 1],
+                    streaming: false,
+                };
+
+                return updated;
+
+            });
+
             setLoading(false);
 
         }
@@ -68,9 +94,16 @@ export function useChat() {
     };
 
     return {
+
+        message,
+        setMessage,
+
         messages,
+
         loading,
+
         sendMessage,
+
     };
 
 }

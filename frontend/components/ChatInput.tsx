@@ -1,36 +1,28 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { SendHorizontal } from "lucide-react";
 
 interface Props {
-    onSend: (message: string) => void;
+    message: string;
+    setMessage: React.Dispatch<React.SetStateAction<string>>;
+    sendMessage: () => void;
     loading: boolean;
 }
 
 export default function ChatInput({
-    onSend,
+    message,
+    setMessage,
+    sendMessage,
     loading,
 }: Props) {
-    const [message, setMessage] = useState("");
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    const handleSend = () => {
-        if (!message.trim() || loading) return;
-
-        onSend(message);
-
-        setMessage("");
-
-        if (textareaRef.current) {
-            textareaRef.current.style.height = "24px";
-        }
-    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
+
         setMessage(e.target.value);
 
         const textarea = e.target;
@@ -41,7 +33,17 @@ export default function ChatInput({
             Math.min(textarea.scrollHeight, 180) + "px";
     };
 
+    const handleSend = () => {
+
+        sendMessage();
+
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "24px";
+        }
+    };
+
     return (
+
         <footer className="border-t border-zinc-800 bg-zinc-950 px-6 py-5">
 
             <div className="max-w-5xl mx-auto">
@@ -146,5 +148,6 @@ export default function ChatInput({
             </div>
 
         </footer>
+
     );
 }
