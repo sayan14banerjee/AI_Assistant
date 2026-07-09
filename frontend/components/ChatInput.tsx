@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SendHorizontal } from "lucide-react";
 
 interface Props {
@@ -14,12 +14,31 @@ export default function ChatInput({
 }: Props) {
     const [message, setMessage] = useState("");
 
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
     const handleSend = () => {
         if (!message.trim() || loading) return;
 
         onSend(message);
 
         setMessage("");
+
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "24px";
+        }
+    };
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLTextAreaElement>
+    ) => {
+        setMessage(e.target.value);
+
+        const textarea = e.target;
+
+        textarea.style.height = "24px";
+
+        textarea.style.height =
+            Math.min(textarea.scrollHeight, 180) + "px";
     };
 
     return (
@@ -41,25 +60,40 @@ export default function ChatInput({
                         transition-all
                         duration-300
                         focus-within:border-blue-500
-                        focus-within:shadow-blue-500/30
+                        focus-within:shadow-blue-500/20
                     "
                 >
 
                     <textarea
+                        ref={textareaRef}
                         rows={1}
-                        placeholder="Ask NEXORA anything..."
-                        disabled={loading}
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        disabled={loading}
+                        placeholder="Message NEXORA..."
+                        onChange={handleChange}
+                        onKeyDown={(e) => {
+
+                            if (
+                                e.key === "Enter" &&
+                                !e.shiftKey
+                            ) {
+
+                                e.preventDefault();
+
+                                handleSend();
+
+                            }
+
+                        }}
                         className="
                             flex-1
                             resize-none
+                            overflow-y-auto
                             bg-transparent
                             outline-none
                             text-white
                             placeholder:text-zinc-500
-                            max-h-40
-                            overflow-y-auto
+                            max-h-[180px]
                         "
                     />
 
@@ -76,20 +110,38 @@ export default function ChatInput({
                             rounded-full
                             bg-blue-600
                             text-white
-                            transition
+                            transition-all
+                            duration-200
+                            hover:scale-105
                             hover:bg-blue-700
+                            active:scale-95
                             disabled:bg-zinc-700
                             disabled:cursor-not-allowed
                         "
                     >
-                        <SendHorizontal size={18} />
+                        <SendHorizontal
+                            size={18}
+                            className={
+                                loading
+                                    ? "animate-pulse"
+                                    : ""
+                            }
+                        />
                     </button>
 
                 </div>
 
-                <p className="mt-2 text-center text-xs text-zinc-500">
-                    Powered by <span className="font-semibold">NEXORA AI</span>
-                </p>
+                <div className="mt-2 flex justify-between text-xs text-zinc-500">
+
+                    <span>
+                        Press <strong>Enter</strong> to send
+                    </span>
+
+                    <span>
+                        Shift + Enter for new line
+                    </span>
+
+                </div>
 
             </div>
 
