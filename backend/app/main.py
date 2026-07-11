@@ -8,7 +8,11 @@ from web_search import searchWeb
 from app.api.routes import search
 from app.api.routes import stream
 
+from app.database.init_db import init_db
+
 app = FastAPI()
+init_db()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
